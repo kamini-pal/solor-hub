@@ -1,61 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
-
-const products = [
-  {
-    id: 1,
-    name: "Rinku Titan X",
-    category: "Residential Solar",
-    power: "400W",
-    efficiency: "22.5%",
-    image: "/solor2.jpg"
-  },
-  {
-    id: 2,
-    name: "Rinku Commercial Pro",
-    category: "Business Solutions",
-    power: "550W",
-    efficiency: "21.8%",
-    image: "/solor3.avif"
-  },
-  {
-    id: 3,
-    name: "Rinku PowerBase",
-    category: "Battery Storage",
-    power: "10kWh",
-    efficiency: "98%",
-    image: "/solor4.avif"
-  },
-  {
-    id: 4,
-    name: "Solar Prime Matrix",
-    category: "Residential Solar",
-    power: "450W",
-    efficiency: "21.0%",
-    image: "/solor1.jpg"
-  },
-  {
-    id: 5,
-    name: "PowerWall Ultra",
-    category: "Battery Storage",
-    power: "15kWh",
-    efficiency: "99%",
-    image: "/solor10.avif"
-  },
-  {
-    id: 6,
-    name: "InvertMax Pro",
-    category: "Inverters",
-    power: "5kW",
-    efficiency: "97%",
-    image: "/solor8.avif"
-  }
-];
+import { ArrowRight, Loader2 } from 'lucide-react';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 export default function FeaturedProducts() {
   const [showAll, setShowAll] = useState(false);
-  const displayedProducts = showAll ? products : products.slice(0, 3);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchFeatured() {
+      if (db.app.options.apiKey === "YOUR_API_KEY") {
+        setLoading(false);
+        return;
+      }
+      try {
+        const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        const prods = [];
+        snapshot.forEach(doc => prods.push({ id: doc.id, ...doc.data() }));
+        setProducts(prods);
+      } catch (err) {
+        console.error('Error fetching featured products:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchFeatured();
+  }, []);
+
+  const displayedProducts = showAll ? products : products.slice(0, 6);
 
   return (
     <section id="products" className="py-24 relative overflow-hidden bg-dark">
@@ -96,8 +71,13 @@ export default function FeaturedProducts() {
           layout
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          <AnimatePresence>
-            {displayedProducts.map((product, idx) => (
+          {loading ? (
+             <div className="col-span-full flex flex-col items-center justify-center p-12 text-primary">
+               <Loader2 className="w-8 h-8 animate-spin" />
+             </div>
+          ) : (
+            <AnimatePresence>
+              {displayedProducts.map((product, idx) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 30 }}
@@ -136,8 +116,9 @@ export default function FeaturedProducts() {
                 </div>
               </div>
             </motion.div>
-            ))}
-          </AnimatePresence>
+              ))}
+            </AnimatePresence>
+          )}
         </motion.div>
       </div>
     </section>

@@ -10,7 +10,7 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  const navItems = ['Home', 'Services', 'Products', 'About', 'Contact'];
+  const navItems = ['Home', 'Services', 'Products', 'Gallery', 'About', 'Contact'];
 
   const handleHashRouting = (e, itemPath, itemId) => {
     e.preventDefault();
@@ -20,7 +20,8 @@ export default function Navbar() {
     } else {
       const target = document.getElementById(itemId);
       if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
+        const y = target.getBoundingClientRect().top + window.scrollY - 100;
+        window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }
   };
@@ -38,7 +39,7 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
-              const isPage = item === 'Home' || item === 'Products' || item === 'Contact' || item === 'Services';
+              const isPage = item === 'Home' || item === 'Products' || item === 'Contact' || item === 'Services' || item === 'Gallery';
               const path = isPage ? (item === 'Home' ? '/' : `/${item.toLowerCase()}`) : `/#${item.toLowerCase()}`;
               
               return isPage ? (
@@ -95,7 +96,7 @@ export default function Navbar() {
           >
             <div className="px-6 pt-4 pb-6 space-y-2 flex flex-col shadow-inner">
               {navItems.map((item) => {
-                const isPage = item === 'Home' || item === 'Products' || item === 'Contact' || item === 'Services';
+                const isPage = item === 'Home' || item === 'Products' || item === 'Contact' || item === 'Services' || item === 'Gallery';
                 const path = isPage ? (item === 'Home' ? '/' : `/${item.toLowerCase()}`) : `/#${item.toLowerCase()}`;
                 
                 return isPage ? (

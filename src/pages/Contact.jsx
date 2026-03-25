@@ -20,8 +20,9 @@ export default function Contact() {
         throw new Error("Please update your Firebase configuration in src/firebase.js connecting to your project.");
       }
 
-      await addDoc(collection(db, 'contacts'), {
+      await addDoc(collection(db, 'leads'), {
         ...formData,
+        source: 'Contact Page',
         createdAt: serverTimestamp(),
       });
 

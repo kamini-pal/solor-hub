@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Auth Check: Validates that the user holds a valid Firebase Authentication token
+    // (Generated directly from your Admin Login panel)
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // ----------------------------------------
+    // PRODUCTS MEDIA
+    // public: CAN READ (Frontend Catalog Images)
+    // admin: CAN UPLOAD, DELETE
+    // ----------------------------------------
+    match /products/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ----------------------------------------
+    // GALLERY MEDIA
+    // public: CAN READ (Installations Showcase)
+    // admin: CAN UPLOAD, DELETE
+    // ----------------------------------------
+    match /gallery/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Auth Check: Validates that the user holds a valid Firebase Authentication token
+    // (Generated directly from your Admin Login panel)
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // ----------------------------------------
+    // LEADS COLLECTION
+    // public: CAN CREATE (Forms)
+    // admin: CAN READ, UPDATE, DELETE (Dashboard)
+    // ----------------------------------------
+    match /leads/{document} {
+      allow create: if true; 
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ----------------------------------------
+    // PRODUCTS COLLECTION
+    // public: CAN READ (Frontend Catalog)
+    // admin: CAN CREATE, UPDATE, DELETE (Admin CRUD)
+    // ----------------------------------------
+    match /products/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ----------------------------------------
+    // GALLERY COLLECTION
+    // public: CAN READ (Installations Page)
+    // admin: CAN CREATE, UPDATE, DELETE (Admin Gallery)
+    // ----------------------------------------
+    match /gallery/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,22 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { triggerQuotePopup } from '../components/layout/AutoPopup';
-
-const categories = ["All Products", "Solar Panels", "Batteries", "Inverters"];
-
-const allProducts = [
-  { id: 1, name: "Solar Max", power: "500W", category: "Solar Panels", image: "/solor2.jpg", tag: "Best Seller" },
-  { id: 2, name: "SunTech Storage", power: "10kWh", category: "Batteries", image: "/solor4.avif", tag: "High Capacity" },
-  { id: 3, name: "SunTech Pro", power: "400W", category: "Solar Panels", image: "/solor3.avif" },
-  { id: 4, name: "Solar Prime", power: "450W", category: "Solar Panels", image: "/solor1.jpg" },
-  { id: 5, name: "PowerWall X", power: "15kWh", category: "Batteries", image: "/solor10.avif", tag: "Premium" },
-  { id: 6, name: "InvertMax Pro", power: "5kW", category: "Inverters", image: "/solor8.avif" }
-];
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export default function Products() {
   const [activeTab, setActiveTab] = useState("All Products");
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState(["All Products"]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      if (db.app.options.apiKey === "YOUR_API_KEY") {
+        setAllProducts([]);
+        setLoading(false);
+        return;
+      }
+      try {
+        const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        const prods = [];
+        const uniqueCategories = new Set();
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          prods.push({ id: doc.id, ...data });
+          if (data.category) uniqueCategories.add(data.category);
+        });
+        setAllProducts(prods);
+        setCategories(["All Products", ...Array.from(uniqueCategories)]);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   const filteredProducts = activeTab === "All Products" 
     ? allProducts 
@@ -115,7 +137,16 @@ export default function Products() {
         {/* Product Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence>
-            {filteredProducts.map((product) => (
+              {loading ? (
+                <div className="col-span-full flex flex-col items-center justify-center p-24 text-primary">
+                  <Loader2 className="w-12 h-12 animate-spin mb-4" />
+                  <p className="text-gray-400">Loading catalog securely from Firebase...</p>
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <div className="col-span-full text-center p-24">
+                  <p className="text-gray-400">No products available in this category.</p>
+                </div>
+              ) : filteredProducts.map((product, idx) => (
               <motion.div
                 layout
                 key={product.id}

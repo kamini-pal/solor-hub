@@ -14,7 +14,8 @@ export default function Home() {
       const timer = setTimeout(() => {
         const target = document.getElementById(targetId);
         if (target) {
-          target.scrollIntoView({ behavior: 'smooth' });
+          const y = target.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({ top: y, behavior: 'smooth' });
         }
       }, 100);
       return () => clearTimeout(timer);

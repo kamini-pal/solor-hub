@@ -75,7 +75,7 @@ export default function HeroSection() {
               className="relative w-full aspect-square max-w-[28rem] sm:max-w-[32rem] md:max-w-[38rem] lg:max-w-none lg:w-[45rem] lg:h-[45rem] xl:w-[52rem] xl:h-[52rem] z-20 pointer-events-none flex justify-center items-center"
             >
               <img
-                src="/hero.png"
+                src="/hero1.png"
                 alt="Premium Standalone Array"
                 className="w-full h-auto max-h-[150%] object-contain scale-125 lg:scale-110 drop-shadow-[0_40px_80px_rgba(34,197,94,0.5)]"
               />
